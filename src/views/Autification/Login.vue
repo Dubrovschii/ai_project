@@ -1,24 +1,13 @@
 <script setup>
 import { ref } from "vue";
-
 import axios from "axios";
-import router from "@/router";
-import logo from "@/assets/img/logo.webp";
-import { useNotification } from "@kyvg/vue3-notification";
-import { useTheme } from "vuetify";
-const theme = useTheme();
-const { notify } = useNotification();
-// const props = defineProps({
-//   items: {
-//     type: Array,
-//   },
-// });
-// const nameField = ref("andrei.ursu@onstep-lab.com");
-// const passwordField = ref("coj2u9h378r7u23hg");
-// const nameField = ref("alexei.dubrovschii@onstep-lab.com");
+import { useRouter } from "vue-router";
+import { notify } from "path-to-notify"; // Убедитесь, что импортируете notify, если оно используется
+
 const nameField = ref("");
 const passwordField = ref("");
-// const passwordField = ref("sfgasjgaiohjgva");
+const visible = ref(false);
+const router = useRouter();
 
 const setCookie = (cname, cvalue, exdays) => {
   var d = new Date();
@@ -40,46 +29,204 @@ const setCookie = (cname, cvalue, exdays) => {
     ";path=/";
 };
 
-// const login = async () => {
-//   await axios
-//     .post(
-//       "https://api-tm.onstep.it/?method=login_user",
-//       {
-//         mail: nameField.value,
-//         password: passwordField.value,
-//       },
-//       {
-//         withCredentials: true,
-//       }
-//     )
-//     .then((res) => {
-//       if (res.data.errors) {
-//         res.data.errors.forEach((error) => {
-//           notify({
-//             title: error,
-//             type: "error",
-//             duration: 1000,
-//           });
-//         });
-//         return;
-//       }
-//       if (res.data.message) {
-//         notify({
-//           title: res.data.message,
-//           type: "success",
-//           duration: 1000,
-//         });
-//       }
+const login = async (event) => {
+  event.preventDefault(); // Предотвращаем стандартное поведение формы (перезагрузка страницы)
 
-//       if (res.data.user_token) {
-//         setCookie("user_token", res.data.user_token, 365);
-//         setCookie("user_name", res.data.user_name, 365);
-//         setCookie("user_id", res.data.user_id, 365);
+  if (!nameField.value || !passwordField.value) {
+    notify({
+      title: "Please fill in both fields",
+      type: "error",
+      duration: 1000,
+    });
+    return;
+  }
 
-//         router.push({ path: "/home" });
-//       }
-//     });
-// };
+  try {
+    const res = await axios.post(
+      "/api/login",
+      {
+        mail: nameField.value,
+        password: passwordField.value,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+
+    if (res.data.errors) {
+      res.data.errors.forEach((error) => {
+        notify({
+          title: error,
+          type: "error",
+          duration: 1000,
+        });
+      });
+      return;
+    }
+
+    if (res.data.message) {
+      notify({
+        title: res.data.message,
+        type: "success",
+        duration: 1000,
+      });
+    }
+
+    if (res.data.user_token) {
+      setCookie("user_token", res.data.user_token, 365);
+      setCookie("user_name", res.data.user_name, 365);
+      setCookie("user_id", res.data.user_id, 365);
+
+      router.push({ path: "/home" });
+    }
+  } catch (error) {
+    notify({
+      title: "Login failed. Please try again.",
+      type: "error",
+      duration: 1000,
+    });
+  }
+};
+</script>
+
+<template>
+  <section class="login">
+    <img :src="logo" alt="" class="logo" />
+    <form class="form" theme="dark" @submit="login">
+      <div class="form__wrap">
+        <v-window>
+          <div>
+            <v-text-field
+              placeholder="Email address"
+              variant="outlined"
+              class="input_pas"
+              v-model="nameField"
+              theme="dark"
+            ></v-text-field>
+
+            <v-text-field
+              :type="visible ? 'text' : 'password'"
+              placeholder="Enter your password"
+              variant="outlined"
+              class="input_pas"
+              v-model="passwordField"
+              @click:append-inner="visible = !visible"
+              theme="dark"
+              append-icon="mdi-eye"
+              <!--
+              Иконка
+              для
+              отображения
+              пароля
+              --
+            >
+              ></v-text-field
+            >
+
+            <v-btn
+              class="btn-login"
+              size="large"
+              variant="outlined"
+              block
+              type="submit"
+              <!--
+              Тип
+              кнопки
+              для
+              отправки
+              формы
+              --
+            >
+              color="#95fcfc" theme="dark" > Log In
+            </v-btn>
+          </div>
+        </v-window>
+      </div>
+    </form>
+  </section>
+</template>
+
+<!-- <script setup>
+import { ref } from "vue";
+
+import axios from "axios";
+import router from "@/router";
+import logo from "@/assets/img/logo.webp";
+import { useNotification } from "@kyvg/vue3-notification";
+import { useTheme } from "vuetify";
+const theme = useTheme();
+const { notify } = useNotification();
+// const props = defineProps({
+//   items: {
+//     type: Array,
+//   },
+// });
+
+// const nameField = ref("alexei.dubrovschii@onstep-lab.com");
+// const passwordField = ref("sfgasjgaiohjgva");
+const nameField = ref("");
+const passwordField = ref("");
+
+const setCookie = (cname, cvalue, exdays) => {
+  var d = new Date();
+  if (exdays === "") {
+    exdays = 1;
+  }
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+  var expires = "expires=" + d.toUTCString();
+  document.cookie =
+    cname +
+    "=" +
+    cvalue +
+    "; SameSite=None; Secure; domain=" +
+    (window.location.hostname === "localhost"
+      ? "localhost"
+      : "tailormusic.onstep.it") +
+    ";" +
+    expires +
+    ";path=/";
+};
+
+const login = async () => {
+  await axios
+    .post(
+      "/api/login",
+      {
+        mail: nameField.value,
+        password: passwordField.value,
+      },
+      {
+        withCredentials: true,
+      }
+    )
+    .then((res) => {
+      if (res.data.errors) {
+        res.data.errors.forEach((error) => {
+          notify({
+            title: error,
+            type: "error",
+            duration: 1000,
+          });
+        });
+        return;
+      }
+      if (res.data.message) {
+        notify({
+          title: res.data.message,
+          type: "success",
+          duration: 1000,
+        });
+      }
+
+      if (res.data.user_token) {
+        setCookie("user_token", res.data.user_token, 365);
+        setCookie("user_name", res.data.user_name, 365);
+        setCookie("user_id", res.data.user_id, 365);
+
+        router.push({ path: "/home" });
+      }
+    });
+};
 const visible = ref(false);
 </script>
 <template>
@@ -105,18 +252,7 @@ const visible = ref(false);
               @click:append-inner="visible = !visible"
               theme="dark"
             ></v-text-field>
-            <!-- <v-text-field
-              :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-              :type="visible ? 'text' : 'password'"
-              placeholder="Enter your password"
-              prepend-inner-icon="mdi-lock-outline"
-              variant="outlined"
-              class="input_pas"
-              @click:append-inner="visible = !visible"
-              v-model="passwordField"
-              @keyup.enter="login"
-              theme="dark"
-            ></v-text-field> -->
+            
             <v-btn
               class="btn-login"
               size="large"
@@ -134,6 +270,8 @@ const visible = ref(false);
     </form>
   </section>
 </template>
+ -->
+
 <style scoped lang="scss">
 .input_pas {
   width: 300px;
