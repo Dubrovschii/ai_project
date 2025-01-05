@@ -1,246 +1,162 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router";
-import { notify } from "path-to-notify"; // Убедитесь, что импортируете notify, если оно используется
-
-const nameField = ref("");
-const passwordField = ref("");
-const visible = ref(false);
-const router = useRouter();
-
-const setCookie = (cname, cvalue, exdays) => {
-  var d = new Date();
-  if (exdays === "") {
-    exdays = 1;
-  }
-  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-  var expires = "expires=" + d.toUTCString();
-  document.cookie =
-    cname +
-    "=" +
-    cvalue +
-    "; SameSite=None; Secure; domain=" +
-    (window.location.hostname === "localhost"
-      ? "localhost"
-      : "tailormusic.onstep.it") +
-    ";" +
-    expires +
-    ";path=/";
-};
-
-const login = async (event) => {
-  event.preventDefault(); // Предотвращаем стандартное поведение формы (перезагрузка страницы)
-
-  if (!nameField.value || !passwordField.value) {
-    notify({
-      title: "Please fill in both fields",
-      type: "error",
-      duration: 1000,
-    });
-    return;
-  }
-
-  try {
-    const res = await axios.post(
-      "/api/login",
-      {
-        mail: nameField.value,
-        password: passwordField.value,
-      },
-      {
-        withCredentials: true,
-      }
-    );
-
-    if (res.data.errors) {
-      res.data.errors.forEach((error) => {
-        notify({
-          title: error,
-          type: "error",
-          duration: 1000,
-        });
-      });
-      return;
-    }
-
-    if (res.data.message) {
-      notify({
-        title: res.data.message,
-        type: "success",
-        duration: 1000,
-      });
-    }
-
-    if (res.data.user_token) {
-      setCookie("user_token", res.data.user_token, 365);
-      setCookie("user_name", res.data.user_name, 365);
-      setCookie("user_id", res.data.user_id, 365);
-
-      router.push({ path: "/home" });
-    }
-  } catch (error) {
-    notify({
-      title: "Login failed. Please try again.",
-      type: "error",
-      duration: 1000,
-    });
-  }
-};
-</script>
-
-<template>
-  <section class="login">
-    <img :src="logo" alt="" class="logo" />
-    <form class="form" theme="dark" @submit="login">
-      <div class="form__wrap">
-        <v-window>
-          <div>
-            <v-text-field
-              placeholder="Email address"
-              variant="outlined"
-              class="input_pas"
-              v-model="nameField"
-              theme="dark"
-            ></v-text-field>
-
-            <v-text-field
-              :type="visible ? 'text' : 'password'"
-              placeholder="Enter your password"
-              variant="outlined"
-              class="input_pas"
-              v-model="passwordField"
-              @click:append-inner="visible = !visible"
-              theme="dark"
-              append-icon="mdi-eye"
-              <!--
-              Иконка
-              для
-              отображения
-              пароля
-              --
-            >
-              ></v-text-field
-            >
-
-            <v-btn
-              class="btn-login"
-              size="large"
-              variant="outlined"
-              block
-              type="submit"
-              <!--
-              Тип
-              кнопки
-              для
-              отправки
-              формы
-              --
-            >
-              color="#95fcfc" theme="dark" > Log In
-            </v-btn>
-          </div>
-        </v-window>
-      </div>
-    </form>
-  </section>
-</template>
-
-<!-- <script setup>
-import { ref } from "vue";
-
-import axios from "axios";
 import router from "@/router";
 import logo from "@/assets/img/logo.webp";
-import { useNotification } from "@kyvg/vue3-notification";
 import { useTheme } from "vuetify";
-const theme = useTheme();
+import { useNotification } from "@kyvg/vue3-notification";
+const user = ref("");
+const password = ref("");
+const visible = ref(false);
+
+// const notification = useNotification();
 const { notify } = useNotification();
-// const props = defineProps({
-//   items: {
-//     type: Array,
-//   },
-// });
 
-// const nameField = ref("alexei.dubrovschii@onstep-lab.com");
-// const passwordField = ref("sfgasjgaiohjgva");
-const nameField = ref("");
-const passwordField = ref("");
-
-const setCookie = (cname, cvalue, exdays) => {
-  var d = new Date();
-  if (exdays === "") {
-    exdays = 1;
-  }
-  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-  var expires = "expires=" + d.toUTCString();
-  document.cookie =
-    cname +
-    "=" +
-    cvalue +
-    "; SameSite=None; Secure; domain=" +
-    (window.location.hostname === "localhost"
-      ? "localhost"
-      : "tailormusic.onstep.it") +
-    ";" +
-    expires +
-    ";path=/";
-};
+notify({
+  title: "Authorization",
+  text: "You need have been logged in!",
+});
+const logoUrl = logo;
 
 const login = async () => {
-  await axios
-    .post(
-      "/api/login",
-      {
-        mail: nameField.value,
-        password: passwordField.value,
-      },
-      {
-        withCredentials: true,
-      }
-    )
-    .then((res) => {
-      if (res.data.errors) {
-        res.data.errors.forEach((error) => {
-          notify({
-            title: error,
-            type: "error",
-            duration: 1000,
-          });
-        });
-        return;
-      }
-      if (res.data.message) {
-        notify({
-          title: res.data.message,
-          type: "success",
-          duration: 1000,
-        });
-      }
-
-      if (res.data.user_token) {
-        setCookie("user_token", res.data.user_token, 365);
-        setCookie("user_name", res.data.user_name, 365);
-        setCookie("user_id", res.data.user_id, 365);
-
-        router.push({ path: "/home" });
-      }
+  if (!user.value || !password.value) {
+    notify({ type: "error", text: "Enter your login and Enter your password" });
+    return;
+  }
+  try {
+    const response = await axios.post("/api/login", {
+      username: user.value,
+      password: password.value,
     });
+
+    if (response.status === 200 && response.data.success) {
+      notify({
+        title: "Success 🎉 ",
+        message: "Logged in successfully!",
+        type: "success",
+      });
+
+      setCookie("user_token", response.data.token, 365);
+      setCookie("user_name", user.value, 365);
+      setCookie("user_id", response.data.user_id, 365);
+
+      router.push("/home");
+    } else {
+      notify({
+        title: "Error",
+        message:
+          response.data.message || "Invalid credentials. Please try again.",
+        type: "error",
+      });
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+
+    if (error.response) {
+      // Сервер ответил с ошибкой
+      notify({
+        title: "Error",
+        message: error.response.data.message || "Server error occurred.",
+        type: "error",
+      });
+    } else if (error.request) {
+      // Сервер не ответил
+      notify({
+        title: "Error",
+        message: "No response from the server. Please check your connection.",
+        type: "error",
+      });
+    } else {
+      // Что-то ещё пошло не так
+      notify({
+        title: "Error",
+        message: "An unknown error occurred. Please try again later.",
+        type: "error",
+      });
+    }
+  }
+
+  // try {
+  //   const response = await axios.post("/api/login", {
+  //     username: user.value,
+  //     password: password.value,
+  //   });
+
+  //   // Обработка успешного ответа
+  //   if (response.status === 200 && response.data.success) {
+  //     notify({
+  //       title: "Success 🎉",
+  //       message: "Logged in successfully!",
+  //       type: "success",
+  //     });
+
+  //     // Установка cookies (сервер должен устанавливать HttpOnly для безопасности)
+  //     setCookie("user_token", response.data.token, 365);
+  //     setCookie("user_name", user.value, 365); // Используем введённое имя пользователя
+  //     setCookie("user_id", response.data.user_id, 365); // Убедитесь, что сервер возвращает `user_id`
+
+  //     // Перенаправление на домашнюю страницу
+  //     router.push("/home");
+  //   } else {
+  //     console.log(response);
+  //   }
+
+  //   //  else {
+  //   //   notify({
+  //   //     title: "Error",
+  //   //     message:
+  //   //       response.data.message || "Invalid credentials. Please try again.",
+  //   //     type: "error",
+  //   //   });
+  //   // }
+  // } catch (error) {
+  //   console.log(21441, error);
+
+  //   if (error.response) {
+  //     notify({
+  //       title: error.response.data.message,
+  //       message: error.response.data.message,
+  //       type: "error",
+  //     });
+  //   }
+  //   // else if (error.request) {
+  //   //   console.error(error.request);
+  //   //   notify({
+  //   //     title: "Error",
+  //   //     message: "No response from server. Please check your connection.",
+  //   //     type: "error",
+  //   //   });
+  //   // } else {
+  //   //   console.error("Error", error.message);
+  //   //   notify({
+  //   //     title: "Error",
+  //   //     message: "Something went wrong. Please try again.",
+  //   //     type: "error",
+  //   //   });
+  //   // }
+  // }
 };
-const visible = ref(false);
+
+const setCookie = (name, value, days) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  // Cookies устанавливаются только с флагом Secure и SameSite=Strict
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;Secure;SameSite=Strict`;
+};
 </script>
+
 <template>
   <section class="login">
-    <img :src="logo" alt="" class="logo" />
+    <img :src="logoUrl" alt="Logo" class="logo" />
     <form class="form" theme="dark">
       <div class="form__wrap">
         <v-window>
           <div>
             <v-text-field
-              placeholder="Email address"
+              placeholder="Login"
               variant="outlined"
               class="input_pas"
-              v-model="nameField"
+              v-model="user"
               theme="dark"
             ></v-text-field>
 
@@ -249,10 +165,11 @@ const visible = ref(false);
               placeholder="Enter your password"
               variant="outlined"
               class="input_pas"
+              v-model="password"
               @click:append-inner="visible = !visible"
               theme="dark"
+              autocomplete="current-password"
             ></v-text-field>
-            
             <v-btn
               class="btn-login"
               size="large"
@@ -270,7 +187,6 @@ const visible = ref(false);
     </form>
   </section>
 </template>
- -->
 
 <style scoped lang="scss">
 .input_pas {
@@ -286,6 +202,7 @@ const visible = ref(false);
   position: relative;
   background: #202733;
 }
+
 .form {
   max-width: 600px;
   width: 100%;
@@ -296,14 +213,15 @@ const visible = ref(false);
   background: #242b36;
   border: 1px solid #48fdfe;
   border-radius: 8px;
-  &__wrap {
-    width: 100%;
-    height: 100%;
-    padding: 50px;
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
+}
+
+.form__wrap {
+  width: 100%;
+  height: 100%;
+  padding: 50px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
 }
 
 .menu__logo {
@@ -320,10 +238,12 @@ const visible = ref(false);
     margin-top: 10px;
   }
 }
+
 .form__wrap .v-text-field,
 .v-btn {
   margin-bottom: 15px;
 }
+
 .logo {
   width: 150px;
   height: 150px;
@@ -333,15 +253,9 @@ const visible = ref(false);
   margin-top: 20px;
   margin-bottom: 50px;
   box-shadow: 0px -2px 16px 1px #48fdfe;
-  // animation: logo 1.3s ease-in-out forwards;
   animation: logo 3.3s ease-in-out infinite;
 }
-// p {
-//   color: #7cfdfe;
-//   border: 1px solid #45c7ff;
-//   background: #95fcfc;
-//   // #50fcf3 #48fdfe #fbfffe #95fcfc #45c7ff
-// }
+
 @keyframes logo {
   0% {
     box-shadow: 0px -2px 16px 1px #45c7ff;

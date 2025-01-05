@@ -1,33 +1,7 @@
-// import { defineConfig } from 'vite';
-// import vue from '@vitejs/plugin-vue';
-// import path from 'path';
-// import { visualizer } from 'rollup-plugin-visualizer';
-
-// export default defineConfig({
-//   plugins: [
-//     vue(),
-//     visualizer({ open: false }) // Отключить автоматическое открытие отчета
-//   ],
-//   resolve: {
-//     alias: {
-//       '@': path.resolve(__dirname, 'src'),
-//     },
-//   },
-//   build: {
-//     rollupOptions: {
-//       output: {
-//         manualChunks: {
-//           vendor: ['vue', 'vue-router'], // Вынести библиотеки в отдельный чанк
-//         },
-//       },
-//     },
-//     chunkSizeWarningLimit: 1000, // Увеличить лимит для предупреждений
-//   },
-// });
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import path from "path";
-import svgLoader from "vite-svg-loader";
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import path from 'path';
+import svgLoader from 'vite-svg-loader';
 
 export default defineConfig({
   plugins: [
@@ -36,7 +10,15 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),  // Алиас указывает на папку src
     },
+  },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5003',
+    },
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
   },
 });

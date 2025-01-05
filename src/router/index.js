@@ -1,7 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router'
-
+import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/views/Home.vue';
 import Login from '@/views/Autification/Login.vue';
+
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+};
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,21 +15,29 @@ const router = createRouter({
       path: "/",
       name: "Login",
       component: Login,
-      // beforeEnter: (to, from, next) => {
-      //   const token = getCookie("user_token");
-      //   if (token) {
-      //     next("/home");
-      //   } else {
-      //     next();
-      //   }
-      // },
+      beforeEnter: (to, from, next) => {
+        const token = getCookie("user_token");
+        console.log('Token:', token);
+        if (token) {
+          next("/home");
+        } else {
+          next();
+        }
+      },
     },
     {
       path: "/home",
       name: "Home",
       component: Home,
+      beforeEnter: (to, from, next) => {
+        const token = getCookie("user_token");
+        if (!token) {
+          next("/");
+        } else {
+          next();
+        }
+      },
     },
-
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
@@ -35,4 +48,4 @@ const router = createRouter({
   },
 });
 
-export default router
+export default router;

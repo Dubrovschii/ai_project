@@ -1,15 +1,22 @@
 <script setup>
 import logo from "@/assets/img/logo.webp";
+
+import sidemenu from "@/components/sidemenu.vue";
+import promo from "@/components/promo.vue";
+// import test from "@/components/test.vue";
 </script>
 
 <template>
   <img :src="logo" alt="" class="logo" />
+
+  <sidemenu />
+  <promo />
 </template>
 
 <style lang="scss">
 .logo {
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   margin: 0 auto;
   display: block;

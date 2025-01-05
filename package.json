@@ -4,29 +4,42 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "concurrently \"npm run server\" \"npm run frontend\"",
+    "server": "node server.js",
+    "frontend": "vite",
+    "dev2": "nodemon server.js",
+    "build": "vite build"
   },
   "dependencies": {
     "@kyvg/vue3-notification": "^3.4.1",
     "@mdi/font": "^7.4.47",
     "axios": "^1.7.9",
+    "axios-retry": "^4.5.0",
+    "bcrypt": "^5.1.1",
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
-    "pinia": "^2.2.6",
+    "mongoose": "^8.9.2",
+    "openai": "^4.77.0",
+    "pinia": "^2.3.0",
     "vue": "^3.5.13",
     "vue-axios": "^3.5.2",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
+    "concurrently": "^9.1.0",
+    "nodemon": "^3.1.9",
     "rollup-plugin-visualizer": "^5.12.0",
-    "sass": "^1.82.0",
+    "sass": "^1.83.0",
     "sass-loader": "^16.0.4",
-    "vite": "^5.4.11",
+    "vite": "^6.0.5",
     "vite-plugin-vue-devtools": "^7.6.5",
     "vite-plugin-vuetify": "^2.0.4",
     "vite-svg-loader": "^5.1.0",
-    "vuetify": "^3.7.5"
+    "vuetify": "^3.7.6"
   }
 }
