@@ -110,6 +110,10 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 
 // Middleware
+// app.use(cors({
+//     origin: ["http://localhost:5003", "https://ai-project-neon.vercel.app"],
+//     credentials: true,
+// }));
 app.use(cors({
     origin: ["http://localhost:5003", "https://ai-project-neon.vercel.app"],
     credentials: true,

@@ -175,6 +175,7 @@ const setCookie = (name, value, days) => {
               size="large"
               variant="outlined"
               block
+              :disabled="!user || !password"
               @click="login"
               color="#95fcfc"
               theme="dark"

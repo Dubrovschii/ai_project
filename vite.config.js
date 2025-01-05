@@ -16,8 +16,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': process.env.NODE_ENV === 'development'
-        ? 'http://localhost:5003'  // Локальный сервер для разработки
-        : 'https://ai-project-neon.vercel.app',  // Продакшн сервер
+        ? 'http://localhost:5003'
+        : 'https://ai-project-neon.vercel.app',
     },
   },
   build: {
