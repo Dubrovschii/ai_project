@@ -25,6 +25,10 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 
 // Middleware
+// app.use(cors({
+//     origin: ["http://localhost:5003", "https://ai-project-neon.vercel.app"],
+//     credentials: true,
+// }));
 app.use(cors({
     origin: ["http://localhost:5003", "https://ai-project-neon.vercel.app"],
     credentials: true,
@@ -73,6 +77,7 @@ const users = [
         console.error("Error hashing passwords or saving users:", error);
     }
 })();
+
 
 app.post("/api/login", async (req, res) => {
     // Получаем username и password из тела запроса
@@ -127,26 +132,6 @@ app.post("/api/login", async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
-        });
-    }
-});
-
-app.get('/api/alluser', async (req, res) => {
-    try {
-        // Получаем всех пользователей из базы данных
-        const users = await User.find({}, { username: 1, _id: 0 }); // Возвращаем только username, без _id
-
-        // Отправляем успешный ответ с массивом пользователей
-        res.status(200).json({
-            success: true,
-            users,
-        });
-    } catch (error) {
-        // Логируем ошибку и отправляем ответ с кодом 500
-        console.error("Error fetching users:", error);
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
         });
     }
 });
