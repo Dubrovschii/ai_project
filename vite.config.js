@@ -20,6 +20,7 @@ export default defineConfig({
         : 'https://ai-project-neon.vercel.app',
     },
   },
+
   build: {
     chunkSizeWarningLimit: 1000,
   },
