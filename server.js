@@ -25,10 +25,6 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 
 // Middleware
-// app.use(cors({
-//     origin: ["http://localhost:5003", "https://ai-project-neon.vercel.app"],
-//     credentials: true,
-// }));
 app.use(cors({
     origin: ["http://localhost:5003", "https://ai-project-neon.vercel.app"],
     credentials: true,
@@ -78,32 +74,6 @@ const users = [
     }
 })();
 
-// Маршрут для входа
-// app.post("/api/login", async (req, res) => {
-//     const { username, password } = req.body;
-//     console.log(123, req);
-//     if (!username || !password) {
-//         return res.status(400).json({ success: false, message: "Username and password are required" });
-//     }
-
-//     try {
-//         const user = await User.findOne({ username });
-//         if (!user) {
-//             return res.status(404).json({ success: false, message: "User not found" });
-//         }
-
-//         const isPasswordValid = await bcrypt.compare(password, user.password);
-//         if (!isPasswordValid) {
-//             return res.status(401).json({ success: false, message: "Invalid password" });
-//         }
-
-//         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-//         return res.json({ success: true, token });
-//     } catch (error) {
-//         console.error("Error during login:", error);
-//         return res.status(500).json({ success: false, message: "Internal Server Error" });
-//     }
-// });
 app.post("/api/login", async (req, res) => {
     // Получаем username и password из тела запроса
     const { username, password } = req.body;
@@ -157,6 +127,26 @@ app.post("/api/login", async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
+        });
+    }
+});
+
+app.get('/api/alluser', async (req, res) => {
+    try {
+        // Получаем всех пользователей из базы данных
+        const users = await User.find({}, { username: 1, _id: 0 }); // Возвращаем только username, без _id
+
+        // Отправляем успешный ответ с массивом пользователей
+        res.status(200).json({
+            success: true,
+            users,
+        });
+    } catch (error) {
+        // Логируем ошибку и отправляем ответ с кодом 500
+        console.error("Error fetching users:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
         });
     }
 });
