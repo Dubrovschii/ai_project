@@ -20,7 +20,9 @@ const logout = async () => {
       type: "info",
     });
     // location.reload();
-    window.location.href = `${apiStore.baseLink}`;
+    console.log(12, apiStore.baseLink);
+    window.location.href = apiStore.baseLink;
+    console.log(123, apiStore.baseLink);
   } catch (error) {
     console.error("Logout error:", error);
     notify({
