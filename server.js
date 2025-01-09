@@ -44,9 +44,13 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
 });
-
+const commentSchema = new mongoose.Schema({
+    text: String,
+    author: String,
+    createdAt: { type: Date, default: Date.now },
+});
 const User = mongoose.model("User", userSchema);
-
+const Comment = mongoose.model('Comment', commentSchema);
 // Список пользователей
 const users = [
     { username: "testuser", password: "password123" },
@@ -54,12 +58,7 @@ const users = [
 ];
 
 // Определение схемы комментариев и модели после подключения к базе данных
-const commentSchema = new mongoose.Schema({
-    text: String,
-    author: String,
-    createdAt: { type: Date, default: Date.now },
-});
-const Comment = mongoose.model('Comment', commentSchema);
+
 
 // Хэширование паролей и добавление пользователей в MongoDB
 (async () => {
