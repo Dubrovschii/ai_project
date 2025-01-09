@@ -194,7 +194,7 @@ app.post('/api/comments', async (req, res) => {
             author
         });
 
-        // Сохранение комментария в базе данных
+        // Сохранение комментария в базе данныхsdsds
         await newComment.save();
 
         res.status(201).json({
