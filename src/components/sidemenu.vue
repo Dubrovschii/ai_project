@@ -4,26 +4,23 @@ import { ref } from "vue";
 import axios from "axios";
 import { useNotification } from "@kyvg/vue3-notification";
 const { notify } = useNotification();
+import { useApiStore } from "@/stores/apiStore";
+import { useRoute } from "vue-router";
 const drawer = ref(null);
+const apiStore = useApiStore();
+const route = useRoute();
 const logout = async () => {
   try {
-    // Удаляем cookies
     deleteCookie("user_token");
     deleteCookie("user_name");
     deleteCookie("user_id");
-
-    // // Отправляем запрос на сервер для завершения сессии (если требуется)
-    // await axios.post("/api/logout");
-
-    // Оповещение о выходе
     notify({
       title: "Logged out",
       message: "You have been logged out successfully.",
       type: "info",
     });
-
-    // Перезагрузка страницы
-    location.reload();
+    // location.reload();
+    window.location.href = `${apiStore.baseLink}`;
   } catch (error) {
     console.error("Logout error:", error);
     notify({
@@ -33,8 +30,11 @@ const logout = async () => {
     });
   }
 };
-
-// Утилита для удаления cookies
+const wwee = () => {
+  console.log(apiStore);
+  console.log(144, apiStore.baseLink);
+};
+wwee();
 const deleteCookie = (name) => {
   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;Secure;SameSite=Strict`;
 };

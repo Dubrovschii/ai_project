@@ -8,6 +8,7 @@ const { notify } = useNotification();
 
 export const useApiStore = defineStore("apiStore", {
     state: () => ({
+        baseLink: ref("https://ai-project-neon.vercel.app")
         // dialog: ref(false),
         // dialogBuy: ref(false),
         // dialogCheckCard: ref(false),
