@@ -69,6 +69,11 @@ const deleteCookie = (name) => {
             ></v-list-item>
             <v-list-item
               prepend-icon="mdi-forum"
+              title="About2"
+              value="about2"
+            ></v-list-item>
+            <v-list-item
+              prepend-icon="mdi-forum"
               title="About"
               value="about"
             ></v-list-item>
