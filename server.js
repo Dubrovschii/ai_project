@@ -350,7 +350,7 @@ app.use(cors({
     origin: ["http://localhost:5003", "https://ai-project-neon.vercel.app"],
     credentials: true,
 }));
-
+app.use('/', express.static('public'))
 app.use(express.json());
 app.use(helmet());
 
