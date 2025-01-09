@@ -92,7 +92,7 @@ const Comment = mongoose.model('Comment', commentSchema);
     }
 })();
 
-// Маршрут для логина
+// Маршрут для логинаsdsd
 app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
 
