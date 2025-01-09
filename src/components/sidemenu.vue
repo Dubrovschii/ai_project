@@ -36,6 +36,7 @@ const wwee = () => {
   console.log(apiStore);
   console.log(144, apiStore.baseLink);
 };
+console.log(1142, apiStore.baseLink);
 wwee();
 const deleteCookie = (name) => {
   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;Secure;SameSite=Strict`;
