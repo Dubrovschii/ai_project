@@ -86,7 +86,8 @@ import { onMounted, ref } from "vue";
 
 import img1 from "../assets/google-satellite.webp"; // Дневная текстура
 import img2 from "../assets/BlackMarble_img2.jpg"; // Ночная текстура
-import logo from "@/assets/img/logo.webp";
+import logo from "@/assets/img/logo-header.webp";
+
 import star from "@/assets/star-outline.svg";
 const canvasContainer = ref(null);
 

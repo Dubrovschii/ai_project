@@ -1,5 +1,5 @@
 <script setup>
-import logo from "@/assets/img/logo.webp";
+import logo from "@/assets/img/logo-header.webp";
 import sidemenu from "@/components/sidemenu.vue";
 </script>
 <template>
