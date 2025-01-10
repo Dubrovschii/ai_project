@@ -16,6 +16,10 @@
       "dest": "server.js"
     },
     {
+      "src": "/(.*\\.(css|js|png|jpg|svg|ico|woff|woff2|ttf|eot|json))",
+      "dest": "dist/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "dist/index.html"
     }
