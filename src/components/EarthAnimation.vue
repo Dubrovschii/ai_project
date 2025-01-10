@@ -150,7 +150,6 @@ onMounted(() => {
   );
 
   const starsMaterial = new THREE.PointsMaterial({
-    // map: star,
     color: 0x48fdfe,
     size: 0.5,
     sizeAttenuation: true,
