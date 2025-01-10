@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import router from "@/router";
-import logo from "@/assets/img/logo-header.webp";
+import logo from "@/assets/img/logo.webp";
 import { useTheme } from "vuetify";
 import { useNotification } from "@kyvg/vue3-notification";
 const user = ref("");

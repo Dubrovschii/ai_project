@@ -1,92 +1,10 @@
-<!-- <script setup>
-import * as THREE from "three";
-import { onMounted, ref } from "vue";
-
-// Ссылка на контейнер для Canvas
-const canvasContainer = ref(null);
-
-onMounted(() => {
-  // Установка размеров сцены
-  const width = canvasContainer.value.clientWidth;
-  const height = canvasContainer.value.clientHeight;
-
-  // Создание сцены
-  const scene = new THREE.Scene();
-
-  // Настройка камеры
-  const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-  camera.position.z = 5;
-
-  // Создание рендера
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(width, height);
-  canvasContainer.value.appendChild(renderer.domElement);
-
-  // Геометрия и материал планеты
-  const geometry = new THREE.SphereGeometry(1, 32, 32);
-  const material = new THREE.MeshStandardMaterial({
-    color: 0x48f1fe,
-    emissive: 0x48fdfe,
-    emissiveIntensity: 0.5,
-    metalness: 0.7,
-    roughness: 0.5,
-  });
-  const earth = new THREE.Mesh(geometry, material);
-  scene.add(earth);
-
-  // Добавление источника света
-  const light = new THREE.PointLight(0xffffff, 1, 100);
-  light.position.set(5, 5, 5);
-  scene.add(light);
-
-  // Анимация появления планеты
-  let scale = 0;
-  function animate() {
-    requestAnimationFrame(animate);
-
-    if (scale < 1) {
-      scale += 0.01; // Увеличиваем масштаб
-      earth.scale.set(scale, scale, scale);
-    }
-
-    earth.rotation.y += 0.01; // Поворот вокруг оси Y
-
-    renderer.render(scene, camera);
-  }
-
-  animate();
-
-  // Обновление рендера при изменении размеров окна
-  window.addEventListener("resize", () => {
-    const width = canvasContainer.value.clientWidth;
-    const height = canvasContainer.value.clientHeight;
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-  });
-});
-</script>
-
-<template>
-  <div ref="canvasContainer" class="canvas-container"></div>
-  <h2>324235</h2>
-</template>
-
-<style>
-.canvas-container {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background-color: #1d1d1d; /* Цвет фона */
-}
-</style> -->
 <script setup>
 import * as THREE from "three";
 import { onMounted, ref } from "vue";
 
 import img1 from "../assets/google-satellite.webp"; // Дневная текстура
 import img2 from "../assets/BlackMarble_img2.jpg"; // Ночная текстура
-import logo from "@/assets/img/logo-header.webp";
+import logo from "@/assets/img/logo.webp";
 
 import star from "@/assets/star-outline.svg";
 const canvasContainer = ref(null);
