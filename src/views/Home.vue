@@ -3,12 +3,17 @@ import logo from "@/assets/img/logo.webp";
 
 import sidemenu from "@/components/sidemenu.vue";
 import promo from "@/components/promo.vue";
+import EarthAnimation from "@/components/EarthAnimation.vue";
+// import EarthAnimation from "@/views/EarthAnimation.vue";
 // import test from "@/components/test.vue";
 </script>
 
 <template>
   <img :src="logo" alt="" class="logo" />
-
+  <div class="container">
+    <h3>Hello world</h3>
+  </div>
+  <!-- <EarthAnimation></EarthAnimation> -->
   <sidemenu />
   <promo />
 </template>

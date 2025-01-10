@@ -1,7 +1,7 @@
-<script>
-import { ref } from "vue";
-</script>
+<script setup></script>
 
 <template>
-  <h2>Hello world</h2>
+  <div class="container">
+    <h2>Hello world</h2>
+  </div>
 </template>

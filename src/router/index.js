@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/views/Home.vue';
 import Login from '@/views/Autification/Login.vue';
-
+import About from '@/views/About.vue';
+import Rewiew from '@/views/Rewiew.vue';
 const getCookie = (name) => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -29,6 +30,32 @@ const router = createRouter({
       path: "/home",
       name: "Home",
       component: Home,
+      beforeEnter: (to, from, next) => {
+        const token = getCookie("user_token");
+        if (!token) {
+          next("/");
+        } else {
+          next();
+        }
+      },
+    },
+    {
+      path: "/about",
+      name: "About",
+      component: About,
+      beforeEnter: (to, from, next) => {
+        const token = getCookie("user_token");
+        if (!token) {
+          next("/");
+        } else {
+          next();
+        }
+      },
+    },
+    {
+      path: "/rewiew",
+      name: "Rewiew",
+      component: Rewiew,
       beforeEnter: (to, from, next) => {
         const token = getCookie("user_token");
         if (!token) {

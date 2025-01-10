@@ -72,3 +72,126 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+* {
+  margin: 0;
+  padding: 0;
+
+  box-sizing: border-box;
+}
+
+.mb-small {
+  margin-bottom: 50px;
+}
+.mb-medium {
+  margin-bottom: 50px;
+}
+.mb-big {
+  margin-bottom: 50px;
+}
+.mt-small {
+  margin-top: 50px;
+}
+.mt-medium {
+  margin-top: 50px;
+}
+.mt-big {
+  margin-top: 50px;
+}
+
+.pb-small {
+  padding-bottom: 50px;
+}
+.pb-medium {
+  padding-bottom: 50px;
+}
+.pb-big {
+  padding-bottom: 50px;
+}
+.pt-small {
+  padding-top: 50px;
+}
+.pt-medium {
+  padding-top: 50px;
+}
+.pt-big {
+  padding-top: 50px;
+}
+
+@media screen and (min-width: 768px) {
+  .mt-big {
+    margin-top: 80px;
+  }
+  .mb-big {
+    margin-bottom: 80px;
+  }
+
+  .pt-big {
+    margin-top: 80px;
+  }
+  .pb-big {
+    margin-bottom: 80px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .mt-small {
+    margin-top: 50px;
+  }
+  .mt-medium {
+    margin-top: 80px;
+  }
+  .mt-big {
+    margin-top: 120px;
+  }
+
+  .mb-small {
+    margin-bottom: 50px;
+  }
+  .mb-medium {
+    margin-bottom: 80px;
+  }
+  .mb-big {
+    margin-bottom: 120px;
+  }
+
+  .pt-small {
+    padding-top: 50px;
+  }
+  .pt-medium {
+    padding-top: 80px;
+  }
+  .pt-big {
+    padding-top: 120px;
+  }
+
+  .pb-small {
+    padding-bottom: 50px;
+  }
+  .pb-medium {
+    padding-bottom: 80px;
+  }
+  .pb-big {
+    padding-bottom: 120px;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 1440px;
+
+  margin: 0 auto;
+  padding: 0 30px;
+
+  &__big {
+    max-width: 1680px;
+  }
+
+  &__mediu {
+    max-width: 1200px;
+  }
+
+  &__small {
+    max-width: 768px;
+  }
+  /* // max-width - poate sa fie diferit in dependenta de project. */
+}

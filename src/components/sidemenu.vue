@@ -9,6 +9,8 @@ import { useRoute } from "vue-router";
 const drawer = ref(null);
 const apiStore = useApiStore();
 const route = useRoute();
+import { RouterView } from "vue-router";
+
 const logout = async () => {
   try {
     deleteCookie("user_token");
@@ -62,21 +64,16 @@ const deleteCookie = (name) => {
         </v-main>
         <v-navigation-drawer v-model="drawer" temporary>
           <v-list density="compact" nav>
-            <v-list-item
-              prepend-icon="mdi-view-dashboard"
-              title="Home"
-              value="home"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-forum"
-              title="About2"
-              value="about2"
-            ></v-list-item>
-            <v-list-item
-              prepend-icon="mdi-forum"
-              title="About"
-              value="about"
-            ></v-list-item>
+            <v-list-item prepend-icon="mdi-information-outline">
+              <router-link class="menu__link" to="/home">Home</router-link>
+            </v-list-item>
+
+            <v-list-item prepend-icon="mdi-forum">
+              <router-link class="menu__link" to="/about">About</router-link>
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-forum">
+              <router-link class="menu__link" to="/rewiew">Review</router-link>
+            </v-list-item>
           </v-list>
           <v-btn
             prepend-icon="mdi-logout"
@@ -102,6 +99,10 @@ const deleteCookie = (name) => {
   display: block;
   right: 25px;
   top: 25px;
+  &__link {
+    text-decoration: none;
+    color: #1d1d1d;
+  }
   .v-card {
     background: none;
     box-shadow: none;
@@ -136,6 +137,15 @@ const deleteCookie = (name) => {
   .logout {
     position: absolute;
     bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    border: none;
+    background: none;
+    box-shadow: none;
+    &:hover {
+      background: #48fdfe;
+    }
   }
 }
 </style>

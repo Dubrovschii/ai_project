@@ -9,7 +9,6 @@ const user = ref("");
 const password = ref("");
 const visible = ref(false);
 
-// const notification = useNotification();
 const { notify } = useNotification();
 
 notify({
