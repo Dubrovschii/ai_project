@@ -3,25 +3,26 @@ import { ref } from "vue";
 import axios from "axios";
 import router from "@/router";
 import logo from "@/assets/img/logo.webp";
-import { useTheme } from "vuetify";
 import { useNotification } from "@kyvg/vue3-notification";
+import EarthAnimation from "@/components/EarthAnimation.vue";
+import { useApiStore } from "@/stores/apiStore";
+const apiStore = useApiStore();
 const user = ref("");
 const password = ref("");
 const visible = ref(false);
-
 const { notify } = useNotification();
+const loading = ref(false);
 
-notify({
-  title: "Authorization",
-  text: "You need have been logged in!",
-});
 const logoUrl = logo;
 
 const login = async () => {
+  loading.value = true;
   if (!user.value || !password.value) {
     notify({ type: "error", text: "Enter your login and Enter your password" });
+    loading.value = false;
     return;
   }
+
   try {
     const response = await axios.post("/api/login", {
       username: user.value,
@@ -31,161 +32,115 @@ const login = async () => {
     if (response.status === 200 && response.data.success) {
       notify({
         title: "Success 🎉 ",
-        message: "Logged in successfully!",
+        text: "Logged in successfully!",
         type: "success",
       });
+      loading.value = false;
 
-      setCookie("user_token", response.data.token, 365);
-      setCookie("user_name", user.value, 365);
-      setCookie("user_id", response.data.user_id, 365);
+      apiStore.setCookie("user_token", response.data.token, 365);
+      apiStore.setCookie("user_name", user.value, 365);
+      apiStore.setCookie("user_id", response.data.user_id, 365);
+      apiStore.avatarSrc = user.value;
+      apiStore.getAvatarUsers();
 
       router.push("/home");
     } else {
       notify({
         title: "Error",
-        message:
-          response.data.message || "Invalid credentials. Please try again.",
+        text: response.data.message || "Invalid credentials. Please try again.",
         type: "error",
       });
+      loading.value = false;
     }
   } catch (error) {
-    console.error("Error during login:", error);
-
-    if (error.response) {
-      // Сервер ответил с ошибкой
-      notify({
-        title: "Error",
-        message: error.response.data.message || "Server error occurred.",
-        type: "error",
-      });
-    } else if (error.request) {
-      // Сервер не ответил
-      notify({
-        title: "Error",
-        message: "No response from the server. Please check your connection.",
-        type: "error",
-      });
-    } else {
-      // Что-то ещё пошло не так
-      notify({
-        title: "Error",
-        message: "An unknown error occurred. Please try again later.",
-        type: "error",
-      });
-    }
+    // if{error}{
+    notify({
+      title: `Error`,
+      text: error.response.data.message || "Server error occurred.",
+      type: "error",
+    });
+    loading.value = false;
+    // }
   }
-
-  // try {
-  //   const response = await axios.post("/api/login", {
-  //     username: user.value,
-  //     password: password.value,
-  //   });
-
-  //   // Обработка успешного ответа
-  //   if (response.status === 200 && response.data.success) {
-  //     notify({
-  //       title: "Success 🎉",
-  //       message: "Logged in successfully!",
-  //       type: "success",
-  //     });
-
-  //     // Установка cookies (сервер должен устанавливать HttpOnly для безопасности)
-  //     setCookie("user_token", response.data.token, 365);
-  //     setCookie("user_name", user.value, 365); // Используем введённое имя пользователя
-  //     setCookie("user_id", response.data.user_id, 365); // Убедитесь, что сервер возвращает `user_id`
-
-  //     // Перенаправление на домашнюю страницу
-  //     router.push("/home");
-  //   } else {
-  //     console.log(response);
-  //   }
-
-  //   //  else {
-  //   //   notify({
-  //   //     title: "Error",
-  //   //     message:
-  //   //       response.data.message || "Invalid credentials. Please try again.",
-  //   //     type: "error",
-  //   //   });
-  //   // }
-  // } catch (error) {
-  //   console.log(21441, error);
-
-  //   if (error.response) {
-  //     notify({
-  //       title: error.response.data.message,
-  //       message: error.response.data.message,
-  //       type: "error",
-  //     });
-  //   }
-  //   // else if (error.request) {
-  //   //   console.error(error.request);
-  //   //   notify({
-  //   //     title: "Error",
-  //   //     message: "No response from server. Please check your connection.",
-  //   //     type: "error",
-  //   //   });
-  //   // } else {
-  //   //   console.error("Error", error.message);
-  //   //   notify({
-  //   //     title: "Error",
-  //   //     message: "Something went wrong. Please try again.",
-  //   //     type: "error",
-  //   //   });
-  //   // }
-  // }
 };
 
-const setCookie = (name, value, days) => {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  // Cookies устанавливаются только с флагом Secure и SameSite=Strict
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;Secure;SameSite=Strict`;
+const userName = apiStore.getCookie("user_name");
+
+const getAvatarUsers = async () => {
+  try {
+    const username = userName;
+    const response = await axios.get(`/api/avatar/${username}`, {
+      responseType: "blob",
+    });
+    console.log(apiStore.avatarSrc);
+    if (response && response.data && response.data.size !== 0) {
+      const imageUrlFromServer = URL.createObjectURL(response.data);
+      apiStore.avatarSrc = imageUrlFromServer;
+    }
+  } catch (error) {
+    console.error("Error retrieving avatar:", error);
+  }
 };
 </script>
 
-<template>
-  <section class="login">
+<template class="login">
+  <div class="container">
+    <EarthAnimation />
     <img :src="logoUrl" alt="Logo" class="logo" />
-    <form class="form" theme="dark">
-      <div class="form__wrap">
-        <v-window>
-          <div>
-            <v-text-field
-              placeholder="Login"
-              variant="outlined"
-              class="input_pas"
-              v-model="user"
-              theme="dark"
-            ></v-text-field>
+    <div class="col-sm-12">
+      <div class="row">
+        <form class="form col-sm-12" theme="dark">
+          <div class="form__wrap">
+            <v-window>
+              <div>
+                <v-text-field
+                  placeholder="Login"
+                  variant="outlined"
+                  class="input_pas"
+                  v-model="user"
+                  theme="dark"
+                ></v-text-field>
 
-            <v-text-field
-              :type="visible ? 'text' : 'password'"
-              placeholder="Enter your password"
-              variant="outlined"
-              class="input_pas"
-              v-model="password"
-              @click:append-inner="visible = !visible"
-              theme="dark"
-              autocomplete="current-password"
-            ></v-text-field>
-            <v-btn
-              class="btn-login"
-              size="large"
-              variant="outlined"
-              block
-              :disabled="!user || !password"
-              @click="login"
-              color="#95fcfc"
-              theme="dark"
-            >
-              Log In
-            </v-btn>
+                <v-text-field
+                  :type="visible ? 'text' : 'password'"
+                  placeholder="Enter your password"
+                  variant="outlined"
+                  class="input_pas"
+                  v-model="password"
+                  @click:append-inner="visible = !visible"
+                  theme="dark"
+                  autocomplete="current-password"
+                ></v-text-field>
+                <v-btn
+                  class="btn-login"
+                  size="large"
+                  variant="outlined"
+                  block
+                  :disabled="!user || !password"
+                  @click="login"
+                  color="#95fcfc"
+                  theme="dark"
+                  :loading="loading"
+                >
+                  Log In
+                </v-btn>
+                <!-- <div class="login__test">
+                  Do you want test app ?Click down
+                  <v-btn
+                    theme="dark"
+                    color="#95fcfc"
+                    variant="outlined"
+                    @click="clickTest"
+                    >Click for test</v-btn
+                  >
+                </div> -->
+              </div>
+            </v-window>
           </div>
-        </v-window>
+        </form>
       </div>
-    </form>
-  </section>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -201,14 +156,20 @@ const setCookie = (name, value, days) => {
   align-items: center;
   position: relative;
   background: #202733;
+  &__test {
+    display: flex;
+    flex-flow: column;
+    text-align: center;
+  }
 }
 
 .form {
   max-width: 600px;
   width: 100%;
-  display: flex;
-  flex-flow: column;
-  align-items: center;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   padding: 25px;
   background: #242b36;
   border: 1px solid #48fdfe;
@@ -245,6 +206,10 @@ const setCookie = (name, value, days) => {
 }
 
 .logo {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translate(-50%);
   width: 150px;
   height: 150px;
   border-radius: 50%;
@@ -276,6 +241,31 @@ const setCookie = (name, value, days) => {
   100% {
     box-shadow: 0px -2px 16px 1px #48fdfe;
     opacity: 1;
+  }
+}
+@media (max-width: 1600px) {
+  .logo {
+    width: 100px;
+    height: 100px;
+    top: 10px;
+  }
+}
+@media (max-width: 768px) {
+  .form {
+    max-width: calc(100% - 40px);
+    &__wrap {
+      padding: 25px 0;
+    }
+  }
+}
+@media (max-width: 578px) {
+  .form {
+    max-width: calc(100% - 15px);
+    &__wrap {
+      .input_pas {
+        width: 220px;
+      }
+    }
   }
 }
 </style>

@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Определение схемы для пользователей
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -11,13 +10,40 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    avatar: {
+        data: Buffer,
+        contentType: String,
+    },
+    name: {
+        type: String,
+        required: false,
+    },
+    surname: {
+        type: String,
+        required: false,
+    },
+    email: {
+        type: String,
+        required: false,
+    },
+    age: {
+        type: Number,
+        required: false,
+    },
+    profession: {
+        type: String,
+        required: false,
+    },
+    hobby: {
+        type: String,
+        required: false,
+    },
+    phone: {
+        type: Number,
+        required: false,
+    },
 });
 
-// Создание модели для пользователей
 const User = mongoose.model("User", userSchema);
 
 export default User;
-
-
-
-
