@@ -8,8 +8,8 @@ const { notify } = useNotification();
 
 export const useApiStore = defineStore("apiStore", {
     state: () => ({
-        // baseLink: "http://localhost:5173/",
-        baseLink: "https://ai-project-neon.vercel.app",
+        baseLink: "http://localhost:5173/",
+        // baseLink: "https://ai-project-neon.vercel.app",
         authorName: "",
         message: "",
         currentLang: localStorage.getItem("currentLang") || "en",
