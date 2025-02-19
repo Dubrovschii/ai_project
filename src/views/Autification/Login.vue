@@ -63,7 +63,11 @@ const login = async () => {
     // }
   }
 };
-
+const clickTest = async () => {
+  user.value = "testuser";
+  password.value = "password123";
+  login();
+};
 const userName = apiStore.getCookie("user_name");
 
 const getAvatarUsers = async () => {
@@ -124,7 +128,7 @@ const getAvatarUsers = async () => {
                 >
                   Log In
                 </v-btn>
-                <!-- <div class="login__test">
+                <div class="login__test">
                   Do you want test app ?Click down
                   <v-btn
                     theme="dark"
@@ -133,7 +137,7 @@ const getAvatarUsers = async () => {
                     @click="clickTest"
                     >Click for test</v-btn
                   >
-                </div> -->
+                </div>
               </div>
             </v-window>
           </div>
