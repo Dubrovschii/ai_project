@@ -6,7 +6,6 @@ import promoimg from "@/assets/promo.webp";
 import sidemenu from "@/components/sidemenu.vue";
 import promo from "@/components/promo.vue";
 import { useApiStore } from "@/stores/apiStore";
-import { defineProps } from "vue";
 import axios from "axios";
 const apiStore = useApiStore();
 const home_title = ref("");

@@ -53,67 +53,22 @@ const translationSchema = new mongoose.Schema(
     {
         _id: {
             type: String,
-            required: true, // Пример: "myaccount"
+            required: true,
         },
         translations: {
             en: {
-                type: Object, // Для английских переводов (структура может быть вложенной)
-                default: {}, // По умолчанию пустой объект
+                type: Object,
+                default: {},
             },
             ru: {
-                type: [translationItemSchema], // Массив объектов с переводами для русского языка
-                default: [], // По умолчанию пустой массив
+                type: [translationItemSchema],
+                default: [],
             },
         },
     },
-    { timestamps: true } // Добавляет createdAt и updatedAt
+    { timestamps: true }
 );
 
-
-// const translationSchema = new mongoose.Schema({
-//     _id: {
-//         type: String,
-//         required: true,
-//     },
-//     translations: {
-//         en: {
-//             type: Object,
-//             default: {},
-//         },
-//         ru: {
-//             type: Object,
-//             default: {},
-//         },
-//     },
-// }, { timestamps: true });
-
-
-// const translationSchema = new mongoose.Schema({
-//     _id: {
-//         type: String,
-//         required: true,
-//     },
-//     translations: {
-//         en: {
-//             type: [
-//                 {
-//                     key: { type: String, required: true }, // Ключ перевода
-//                     value: { type: mongoose.Schema.Types.Mixed, required: true }, // Значение перевода (может быть строкой или объектом)
-//                 },
-//             ],
-//             default: [],
-//         },
-//         ru: {
-//             type: [
-//                 {
-//                     key: { type: String, required: true },
-//                     value: { type: mongoose.Schema.Types.Mixed, required: true },
-//                 },
-//             ],
-//             default: [],
-//         },
-//     },
-// }, { timestamps: true });
 const Translation = mongoose.model("TranslationSchema", translationSchema);
 
 export default Translation;

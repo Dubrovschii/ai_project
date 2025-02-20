@@ -179,18 +179,15 @@ body {
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 20px;
-
-  &__big {
-    max-width: 1680px;
-  }
-
-  &__mediu {
-    max-width: 1200px;
-  }
-
-  &__small {
-    max-width: 768px;
-  }
+}
+.container__big {
+  max-width: 1680px;
+}
+.container__mediu {
+  max-width: 1200px;
+}
+.container__small {
+  max-width: 768px;
 }
 @media (max-width: 768px) {
   .container {

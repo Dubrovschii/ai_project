@@ -29,10 +29,17 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['vue', 'vue-router'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('vuetify')) return 'vuetify';
+            if (id.includes('vue')) return 'vue-core';
+            if (id.includes('vue-router')) return 'vue-router';
+            if (id.includes('lodash')) return 'lodash';
+            return 'vendor';
+          }
         },
       },
     },
+
   },
 });
