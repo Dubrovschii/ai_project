@@ -33,7 +33,8 @@ const app = express();
 
 // Настройка CORS
 const corsOptions = {
-    origin: ["https://ai-project-neon.vercel.app", "http://localhost:5173", "http://localhost:5003"],
+    // origin: ["https://ai-project-neon.vercel.app", "http://localhost:5173", "http://localhost:5003"],
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,

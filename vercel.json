@@ -16,6 +16,10 @@
       "dest": "server.js"
     },
     {
+      "src": "/translations/(.*)",
+      "dest": "server.js"
+    },
+    {
       "src": "/(.*\\.(css|js|png|jpg|webp|svg|ico|woff|woff2|ttf|eot|json))",
       "dest": "dist/$1"
     },
