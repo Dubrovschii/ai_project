@@ -12,6 +12,7 @@ const apiStore = useApiStore();
 const home_route = ref("");
 const about_route = ref("");
 const review_route = ref("");
+const userName = apiStore.getCookie("user_name");
 watch(
   () => apiStore.contentRouteSideMenu.value,
   (newValue) => {
@@ -37,12 +38,12 @@ apiStore.getAvatarUsers();
     <router-link
       class="mdi mdi-account-circle-outline header__myaccount"
       to="/myaccount"
-      v-if="apiStore.avatarSrc == ''"
+      v-if="apiStore.avatarSrc == '' || apiStore.avatarSrc == userName"
     ></router-link>
     <router-link
       class="header__myaccount"
       to="/myaccount"
-      v-if="apiStore.avatarSrc !== ''"
+      v-if="apiStore.avatarSrc !== '' && apiStore.avatarSrc !== userName"
     >
       <img
         :src="apiStore.avatarSrc"

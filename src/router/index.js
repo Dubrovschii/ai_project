@@ -9,7 +9,7 @@ const getCookie = (name) => {
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(';').shift();
 };
-console.log(import.meta.env.BASE_URL);
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [

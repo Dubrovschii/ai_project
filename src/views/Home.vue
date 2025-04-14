@@ -6,7 +6,6 @@ import promoimg from "@/assets/promo.webp";
 import sidemenu from "@/components/sidemenu.vue";
 import promo from "@/components/promo.vue";
 import { useApiStore } from "@/stores/apiStore";
-import axios from "axios";
 const apiStore = useApiStore();
 const home_title = ref("");
 const home_descr = ref("");
@@ -25,7 +24,7 @@ watch(
 );
 
 onMounted(async () => {
-  // await apiStore.loadTranslations(apiStore.currentLang);
+  await apiStore.loadTranslations(apiStore.currentLang);
 
   gsap.to(".green", {
     rotation: 360,
@@ -70,7 +69,7 @@ onMounted(async () => {
         <div
           v-for="(review, index) in home_review"
           :key="index"
-          :class="`box gradient-${review.color} ${review.color}`"
+          :class="`box ${review.color}`"
         >
           <div class="box__rewiew">
             <div class="box__author">{{ review.name }}</div>

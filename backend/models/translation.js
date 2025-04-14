@@ -1,8 +1,5 @@
 import mongoose from "mongoose";
 
-
-
-
 const translationItemSchema = new mongoose.Schema(
     {
         title: {
@@ -46,7 +43,7 @@ const translationItemSchema = new mongoose.Schema(
             required: true,
         },
     },
-    { _id: false } // Убираем автоматическое поле _id для элементов
+    { _id: false }
 );
 
 const translationSchema = new mongoose.Schema(

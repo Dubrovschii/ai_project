@@ -1,16 +1,20 @@
 <script setup>
+import { ref, watch, onMounted } from "vue";
 import logo from "@/assets/img/logo.webp";
 import sidemenu from "@/components/sidemenu.vue";
 import axios from "axios";
 import { useNotification } from "@kyvg/vue3-notification";
 import promo from "@/components/promo.vue";
-import { ref, watch, onMounted } from "vue";
+import chat from "@/components/chat.vue";
+import modals from "@/components/modals.vue";
 import { useApiStore } from "@/stores/apiStore";
+
 const apiStore = useApiStore();
 
 const { notify } = useNotification();
 
 const save = ref("");
+
 const titlePage = ref("");
 const linkList = ref("");
 const linkStatistic = ref("");
@@ -24,6 +28,7 @@ const title_content = ref("");
 const content_nofouded = ref("");
 const items = ["En", "Ru"];
 
+const chatContent = ref(false);
 const usernameName = ref("");
 const usernameSurname = ref("");
 const usernameEmail = ref("");
@@ -36,25 +41,32 @@ const activeBtn = ref(false);
 const infoListShow = ref(false);
 const infoStatisticShow = ref(false);
 const sdbList = ref(true);
-const dialog = ref(false);
 const file = ref(null);
+
+const firstname = ref("");
+const surname = ref("");
+const avatar = ref("");
+const email = ref("");
+const age = ref("");
+const profession = ref("");
+const hobby = ref("");
+const phone = ref("");
+
 const capitalizeFirstLetter = (str) =>
   str.charAt(0).toUpperCase() + str.slice(1);
 const select = ref(capitalizeFirstLetter(apiStore.currentLang));
 
-const switchLanguage = async () => {
+async function switchLanguage() {
   try {
     const newLang = apiStore.currentLang === "en" ? "ru" : "en";
-
     apiStore.currentLang = newLang;
-
     localStorage.setItem("currentLang", newLang);
-
     await apiStore.loadTranslations(newLang);
   } catch (error) {
     console.error("Ошибка переключения языка:", error);
   }
-};
+}
+
 watch(select, async (newLang) => {
   if (newLang !== apiStore.currentLang) {
     await switchLanguage();
@@ -79,147 +91,53 @@ watch(
 
     if (newValueGlobal) {
       save.value = newValueGlobal.save;
+      firstname.value = newValueGlobal.firstname;
+      surname.value = newValueGlobal.surname;
+      avatar.value = newValueGlobal.avatar;
+      email.value = newValueGlobal.email;
+      age.value = newValueGlobal.age;
+      profession.value = newValueGlobal.profession;
+      hobby.value = newValueGlobal.hobby;
+      phone.value = newValueGlobal.phone;
     }
   },
   { immediate: true }
 );
 
-// onMounted(async () => {
-//   await apiStore.loadTranslations(apiStore.currentLang);
-// });
+async function toggleState(target) {
+  if (userName !== "") {
+    target.value = !target.value;
+    activeBtn.value = !activeBtn.value;
 
+    if (target !== infoListShow) infoListShow.value = false;
+    if (target !== infoStatisticShow) infoStatisticShow.value = false;
+    if (target !== chatContent) chatContent.value = false;
+  }
+}
 async function getUserList() {
-  if (userName === "testuser") {
-    infoListShow.value = !infoListShow.value;
-    activeBtn.value = !activeBtn.value;
-    if (infoListShow) {
-      infoStatisticShow.value = false;
-    }
-  }
+  await toggleState(infoListShow);
 }
+
 async function getUserStatistic() {
-  console.log(userName === "testuser");
-  if (userName === "testuser") {
-    infoStatisticShow.value = !infoStatisticShow.value;
-    activeBtn.value = !activeBtn.value;
-    if (infoStatisticShow) {
-      infoListShow.value = false;
-    }
-  }
+  await toggleState(infoStatisticShow);
 }
+
+async function getUserChat() {
+  await toggleState(chatContent);
+}
+
 const setActive = (button) => {
   if (button === "list") {
     getUserList();
   } else if (button === "statistic") {
     getUserStatistic();
+  } else if (button === "chat") {
+    getUserChat();
   }
 };
 
-// const onSubmit = async () => {
-//   if (file.value) {
-//     try {
-//       const formData = new FormData();
-//       formData.append("file", file.value);
-
-//       const username = userName;
-
-//       const response = await axios.post(`/api/upload/${username}`, formData, {
-//         headers: {
-//           "Content-Type": "multipart/form-data",
-//         },
-//       });
-//       apiStore.getAvatarUsers();
-//       console.log("File uploaded successfully:", response.data);
-//     } catch (error) {
-//       console.error("Error uploading file:", error);
-//     }
-//   } else {
-//     console.log("No file selected");
-//   }
-// };
-
-const onSubmitInfo = async () => {
-  try {
-    const formData = new FormData();
-    if (file.value) {
-      try {
-        const formData = new FormData();
-        formData.append("file", file.value);
-
-        const username = userName;
-
-        const response = await axios.post(`/api/upload/${username}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        apiStore.getAvatarUsers();
-        console.log("File uploaded successfully:", response.data);
-      } catch (error) {
-        console.error("Error uploading file:", error);
-      }
-    }
-    const username = userName;
-
-    // formData.append("file", file.value);
-    formData.append("name", usernameName.value);
-    formData.append("surname", usernameSurname.value);
-    formData.append("email", usernameEmail.value);
-    formData.append("age", usernameAge.value);
-    formData.append("profession", usernameProfession.value);
-    formData.append("hobby", usernameHobby.value);
-    formData.append("phone", usernamePhone.value);
-    const response = await axios.post(`/api/post-info/${username}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    apiStore.getAvatarUsers();
-  } catch (error) {
-    console.error("Error uploading file:", error);
-  }
-};
-
-const getInfoUsers = async () => {
-  const username = userName;
-  const formData = new FormData();
-
-  const response = await axios.get(`/api/post-info/${username}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-  console.log(response.data);
-
-  if (response && response.data && response.data.success === true) {
-    usernameName.value = response.data.data.name;
-    if (usernameName.value === undefined) {
-      usernameName.value = "";
-    }
-    usernameSurname.value = response.data.data.surname;
-    usernameEmail.value = response.data.data.email;
-    usernameAge.value = response.data.data.age;
-    usernameProfession.value = response.data.data.profession;
-    usernameHobby.value = response.data.data.hobby;
-    usernamePhone.value = response.data.data.phone;
-  }
-};
-getInfoUsers();
-const deleteAvatar = async () => {
-  try {
-    const username = userName;
-
-    const response = await axios.delete(`/api/avatar/${username}`);
-    if (response.data.success) {
-      apiStore.avatarSrc = "";
-    } else {
-      console.error("Error deleting avatar:", response.data.message);
-    }
-  } catch (error) {
-    console.error("Error deleting avatar:", error);
-  }
-};
-apiStore.getAvatarUsers();
+apiStore.getInfoUsers();
+// apiStore.getAvatarUsers();
 </script>
 
 <template class="myaccount">
@@ -236,7 +154,11 @@ apiStore.getAvatarUsers();
               <div class="sdb__username_s">{{ title_sidebar }} :</div>
               <div class="sdb__username">
                 {{ userName }}
-                <v-btn @click="dialog = true" icon="mdi-cog" class="sdb__btn">
+                <v-btn
+                  @click="apiStore.dialog = true"
+                  icon="mdi-cog"
+                  class="sdb__btn"
+                >
                 </v-btn>
               </div>
             </div>
@@ -256,7 +178,11 @@ apiStore.getAvatarUsers();
               >
             </v-list-item>
             <v-list-item prepend-icon="mdi-forum">
-              <v-btn>{{ linkChat }}</v-btn>
+              <v-btn
+                @click="setActive('chat')"
+                :class="chatContent ? 'btn-active' : 'static'"
+                >{{ linkChat }}</v-btn
+              >
             </v-list-item>
             <v-list-item prepend-icon="mdi-forum">
               <v-btn>{{ linkAi }}</v-btn>
@@ -286,27 +212,93 @@ apiStore.getAvatarUsers();
         <div class="col-sm-8 myaccount__content cnt">
           <div class="cnt__start">{{ title_content }}</div>
           <div class="info">
-            <div class="info__user" v-if="!infoListShow && !infoStatisticShow">
+            <div
+              class="info__user"
+              v-if="!infoListShow && !infoStatisticShow && !chatContent"
+            >
               <div class="info__name">
-                {{ usernameName }}
+                {{ firstname }}:
+                <v-skeleton-loader
+                  v-if="!apiStore.usernameName"
+                  type="text"
+                  theme="dark"
+                ></v-skeleton-loader>
+
+                <v-list-item v-else rounded>
+                  {{ apiStore.usernameName }}
+                </v-list-item>
               </div>
               <div class="info__name">
-                {{ usernameSurname }}
+                {{ surname }}:
+                <v-skeleton-loader
+                  v-if="!apiStore.usernameSurname"
+                  type="text"
+                  theme="dark"
+                ></v-skeleton-loader>
+
+                <v-list-item v-else rounded>
+                  {{ apiStore.usernameSurname }}
+                </v-list-item>
               </div>
               <div class="info__name">
-                {{ usernameEmail }}
+                {{ email }} :
+                <v-skeleton-loader
+                  v-if="!apiStore.usernameEmail"
+                  type="text"
+                  theme="dark"
+                ></v-skeleton-loader>
+
+                <v-list-item v-else rounded>
+                  {{ apiStore.usernameEmail }}
+                </v-list-item>
               </div>
               <div class="info__name">
-                {{ usernameAge }}
+                {{ age }}:
+                <v-skeleton-loader
+                  v-if="!apiStore.usernameAge"
+                  type="text"
+                  theme="dark"
+                ></v-skeleton-loader>
+
+                <v-list-item v-else rounded>
+                  {{ apiStore.usernameAge }}
+                </v-list-item>
               </div>
               <div class="info__name">
-                {{ usernameProfession }}
+                {{ profession }}:
+                <v-skeleton-loader
+                  v-if="!apiStore.usernameProfession"
+                  type="text"
+                  theme="dark"
+                ></v-skeleton-loader>
+
+                <v-list-item v-else rounded>
+                  {{ apiStore.usernameProfession }}
+                </v-list-item>
               </div>
               <div class="info__name">
-                {{ usernameHobby }}
+                {{ hobby }}:
+                <v-skeleton-loader
+                  v-if="!apiStore.usernameHobby"
+                  type="text"
+                  theme="dark"
+                ></v-skeleton-loader>
+
+                <v-list-item v-else rounded>
+                  {{ apiStore.usernameHobby }}
+                </v-list-item>
               </div>
               <div class="info__name">
-                {{ usernamePhone }}
+                {{ phone }} :
+                <v-skeleton-loader
+                  v-if="!apiStore.usernamePhone"
+                  type="text"
+                  theme="dark"
+                ></v-skeleton-loader>
+
+                <v-list-item v-else rounded>
+                  {{ apiStore.usernamePhone }}
+                </v-list-item>
               </div>
             </div>
 
@@ -316,95 +308,14 @@ apiStore.getAvatarUsers();
             <div class="info__list" v-if="infoStatisticShow && !infoListShow">
               {{ content_nofouded }}
             </div>
+            <chat v-if="chatContent" />
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <v-dialog v-model="dialog" width="auto" class="myaccount__model">
-    <v-card width="700">
-      <v-btn class="ms-auto close_delete-btn" text @click="dialog = false" icon
-        ><v-icon>mdi-window-close</v-icon></v-btn
-      >
-
-      <div class="myaccount__icons">
-        <img
-          :src="apiStore.avatarSrc"
-          alt="User Avatar"
-          id="avatarImage"
-          v-if="apiStore.avatarSrc !== ''"
-          width="150px"
-          height="150px"
-        />
-
-        <v-btn
-          v-if="apiStore.avatarSrc !== ''"
-          @click="deleteAvatar()"
-          icon
-          aria-label="Delete icons"
-          class="close_delete-btn myaccount__icons_delete"
-        >
-          <v-icon>mdi-window-close</v-icon>
-        </v-btn>
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          v-if="apiStore.avatarSrc == ''"
-        >
-          <path
-            d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11A1.5,1.5 0 0,1 10.5,9.5A1.5,1.5 0 0,1 12,8A1.5,1.5 0 0,1 13.5,9.5A1.5,1.5 0 0,1 12,11Z"
-          />
-        </svg>
-      </div>
-
-      <v-form ref="form" @submit.prevent="onSubmitInfo()">
-        <v-file-input
-          v-model="file"
-          label="Аватарка"
-          accept=".jpg,.jpeg,.png,.pdf,.webp"
-          outlined
-        ></v-file-input>
-        <v-text-field
-          v-model="usernameName"
-          label="Имя"
-          outlined
-        ></v-text-field>
-        <v-text-field
-          v-model="usernameSurname"
-          label="Фамилия"
-          outlined
-        ></v-text-field>
-        <v-text-field
-          v-model="usernameEmail"
-          label="Email"
-          outlined
-        ></v-text-field>
-        <v-text-field
-          v-model="usernameAge"
-          label="Возраст"
-          outlined
-        ></v-text-field>
-        <v-text-field
-          v-model="usernameProfession"
-          label="Профессия"
-          outlined
-        ></v-text-field>
-        <v-text-field
-          v-model="usernameHobby"
-          label="Увлечение"
-          outlined
-        ></v-text-field>
-        <v-text-field
-          v-model="usernamePhone"
-          label="Телефон"
-          outlined
-        ></v-text-field>
-        <v-btn type="submit" color="primary">{{ save }}</v-btn>
-      </v-form>
-    </v-card>
-  </v-dialog>
+  <modals />
 </template>
 
 <style lang="scss">
@@ -435,13 +346,42 @@ apiStore.getAvatarUsers();
     }
   }
   &__model {
+    .v-file-input input[type="file"] {
+      color: #7cfdfe;
+      .v-field__input {
+        padding: 20px 15px;
+        padding-bottom: 0;
+      }
+    }
+    .v-file-input {
+      .v-label {
+        position: absolute !important;
+        top: 0 !important;
+      }
+      .v-field--active {
+        .v-label {
+          position: absolute !important;
+          top: 10px !important;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .v-field__input {
+      padding: 20px 15px;
+      padding-bottom: 0;
+    }
+    .v-field-label {
+      padding: 5px 15px;
+      padding-bottom: 0;
+    }
     .v-card {
       border: 1px solid #7cfdfe !important;
       box-shadow: -1px 0px 9px 1px #45c7ff !important;
       background: #181818 !important;
       padding: 15px;
     }
-    .v-field__field {
+    .v-field {
       border: 1px solid #7cfdfe !important;
       box-shadow: -1px 0px 9px 1px #45c7ff !important;
       color: #7cfdfe;
@@ -557,11 +497,24 @@ apiStore.getAvatarUsers();
   background: rgb(59, 189, 59) !important;
   color: #7cfdfe !important;
 }
-.info__name {
-  color: #7cfdfe;
-  font-size: 32px;
-  display: block;
-  line-height: 34px;
+.info {
+  &__user {
+    margin-top: 40px;
+  }
+  &__name {
+    color: #7cfdfe;
+    font-size: clamp(20px, 3vw, 30px);
+    display: flex;
+    align-items: center;
+    line-height: 34px;
+    .v-skeleton-loader {
+      min-width: 100px;
+      max-width: 100%;
+      width: auto;
+
+      background: transparent;
+    }
+  }
 }
 @keyframes settingbtn {
   0% {

@@ -10,6 +10,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    online: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
     avatar: {
         data: Buffer,
         contentType: String,

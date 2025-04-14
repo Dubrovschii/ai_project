@@ -8,13 +8,14 @@ const { notify } = useNotification();
 
 export const useApiStore = defineStore("apiStore", {
     state: () => ({
-        // baseLink: "http://localhost:5173/",
-        baseLink: "https://ai-project-neon.vercel.app/",
+        baseLink: "http://localhost:5173/",
+        // baseLink: "https://ai-project-neon.vercel.app/",
         authorName: "",
         message: "",
         currentLang: localStorage.getItem("currentLang") || "en",
         enLang: true,
         ruLang: false,
+        loading: false,
         translations: {},
         contentRouteSideMenu: {},
         contentMyaccount: {},
@@ -30,7 +31,16 @@ export const useApiStore = defineStore("apiStore", {
             review_form_descr: '',
         },
         contentGlobal: {
-            save: ''
+            save: '',
+            firstname: '',
+            surname: '',
+            avatar: '',
+            email: '',
+            age: '',
+            profession: '',
+            hobby: '',
+            phone: '',
+
         },
         avatarSrc: '',
         usernameName: '',
@@ -40,6 +50,7 @@ export const useApiStore = defineStore("apiStore", {
         usernameProfession: '',
         usernameHobby: '',
         usernamePhone: '',
+        dialog: false,
     }),
 
     actions: {
@@ -81,6 +92,14 @@ export const useApiStore = defineStore("apiStore", {
                     if (translations[4]) {
                         this.contentGlobal.value = {
                             save: translations[4].save,
+                            firstname: translations[4].name,
+                            surname: translations[4].surname,
+                            avatar: translations[4].avatar,
+                            email: translations[4].email,
+                            age: translations[4].age,
+                            profession: translations[4].profession,
+                            hobby: translations[4].hobby,
+                            phone: translations[4].phone,
 
                         };
 
@@ -168,6 +187,30 @@ export const useApiStore = defineStore("apiStore", {
             } catch (error) {
                 console.error("Error retrieving avatar:", error);
             }
+        },
+        async getInfoUsers() {
+            const username = this.getCookie("user_name");
+            const formData = new FormData();
+
+            const response = await axios.get(`/api/post-info/${username}`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            if (response && response.data && response.data.success === true) {
+                this.usernameName = response.data.data.name;
+                if (this.usernameName === undefined) {
+                    this.usernameName = "";
+                }
+                this.usernameSurname = response.data.data.surname;
+                this.usernameEmail = response.data.data.email;
+                this.usernameAge = response.data.data.age;
+                this.usernameProfession = response.data.data.profession;
+                this.usernameHobby = response.data.data.hobby;
+                this.usernamePhone = response.data.data.phone;
+            }
         }
+
     },
 });

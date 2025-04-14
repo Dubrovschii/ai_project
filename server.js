@@ -6,19 +6,21 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import helmet from "helmet";
 import multer from 'multer';
-
+import { createServer } from "http";
+import { Server } from "socket.io";
 import Comment from './backend/models/comment.js';
-import User from "./backend/models/user.js";  // Исправленный импорт
+import User from "./backend/models/user.js";
 import translationsRouter from './backend/translationsRouter.js';
+
+const app = express();
+
 
 // Настройка Multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Загрузка переменных окружения
 dotenv.config();
 
-// Строка подключения к MongoDB
 const MONGODB_URI = process.env.MONGODB_URI;
 const PORT = process.env.PORT || 5003;
 
@@ -28,56 +30,166 @@ if (!process.env.JWT_SECRET) {
     process.exit(1);
 }
 
-// Создание приложения Express
-const app = express();
 
 // Настройка CORS
 const corsOptions = {
-    // origin: ["https://ai-project-neon.vercel.app", "http://localhost:5173", "http://localhost:5003"],
-    origin: "*",
+    origin: ["https://ai-project-neon.vercel.app", "http://localhost:5173", "http://localhost:5003"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
 };
 app.use(cors(corsOptions));
 
+// Настройка WebSocket
+const server = createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: [
+            "https://ai-project-neon.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:5003"
+        ],
+        methods: ["GET", "POST"],
+        credentials: true,
+    },
+});
+
+
+async function loadUsersFromDB() {
+    const allUsers = await User.find();
+    console.log("Загружены пользователи:", allUsers.map(u => u.username));
+    return new Set(allUsers.map(u => u.name));
+}
+loadUsersFromDB();
+const users = {};
+const allUsers = new Set();
+const pendingMessages = {};
+
+
+
 // Middleware
+
+
+io.on("connection", (socket) => {
+    console.log("Пользователь подключился");
+
+
+    socket.on("chat message", (data) => {
+        console.log(`Сообщение от ${data.from}: ${data.message}`);
+        io.emit("chat message", data);
+    });
+
+
+    socket.on("user connected", async (userName) => {
+        users[userName] = socket.id;
+        allUsers.add(userName); // Добавляем в общий список пользователей
+
+        try {
+            // Обновляем статус пользователя как онлайн в базе данных
+            await User.findOneAndUpdate({ username: userName }, { online: true }, { new: true });
+
+            // Отправляем отложенные сообщения
+            if (pendingMessages[userName]) {
+                pendingMessages[userName].forEach((msg) => {
+                    socket.emit("private message", msg);
+                });
+                delete pendingMessages[userName]; // Очищаем после отправки
+            }
+
+            // Обновляем список пользователей с онлайн-статусами
+            await updateUserList();
+        } catch (err) {
+            console.error("Ошибка обновления статуса пользователя:", err);
+        }
+    });
+    socket.on("private message", ({ from, to, message }) => {
+        const recipientSocketId = users[to];
+
+        if (recipientSocketId) {
+            // Если получатель онлайн – отправляем сразу
+            io.to(recipientSocketId).emit("private message", { from, message, to });
+        } else {
+            // Если оффлайн – сохраняем сообщение
+            if (!pendingMessages[to]) {
+                pendingMessages[to] = [];
+            }
+            pendingMessages[to].push({ from, message, to });
+        }
+    });
+
+
+    socket.on("disconnect", async () => {
+        const disconnectedUser = Object.keys(users).find((key) => users[key] === socket.id);
+        if (disconnectedUser) {
+            delete users[disconnectedUser];
+
+            try {
+                // Обновляем статус пользователя как офлайн в базе данных
+                const user = await User.findOneAndUpdate({ username: disconnectedUser }, { online: false }, { new: true });
+
+                console.log(`${disconnectedUser} отключился. Статус в базе: ${user.online}`);
+                console.log("Обновленный список пользователей:", Object.keys(users));
+
+                updateUserList();
+            } catch (err) {
+                console.error("Ошибка обновления статуса пользователя при отключении:", err);
+            }
+        }
+    });
+
+    async function updateUserList() {
+        const dbUsers = await User.find();
+        const userList = dbUsers.map((user) => ({
+            name: user.username,
+            online: user.online // Статус пользователя (онлайн/оффлайн)
+        }));
+
+        console.log("Обновленный список пользователей:", userList);
+        io.emit("users list", userList); // Отправляем всем клиентам обновленный список пользователей
+    }
+});
+
 app.use('/', express.static('dist'));
 app.use(express.json());
 app.use(helmet());
 
-// Подключение к MongoDB
 mongoose
     .connect(MONGODB_URI)
     .then(() => console.log("Connected to MongoDB"))
     .catch((err) => console.error("Error connecting to MongoDB:", err));
 
-// Подключение роутов
 app.use('/translations', translationsRouter);
 
-// Хэширование паролей и добавление пользователей в базу данных
+
 (async () => {
     const saltRounds = 10;
 
     try {
-        const users = await User.find(); // Получаем всех пользователей из базы данных
+        const usersToAdd = [
+            { username: "User1", password: "pass123" },
+            { username: "User2", password: "pass456" }
+        ];
 
-        for (let user of users) {
-            const existingUser = await User.findOne({ username: user.username });
+        for (let userData of usersToAdd) {
+            // Проверяем, есть ли пользователь в базе
+            const existingUser = await User.findOne({ username: userData.username });
             if (existingUser) {
-                console.log(`User ${user.username} already exists`);
+                console.log(`Пользователь ${userData.username} уже существует`);
                 continue;
             }
-            const hashedPassword = await bcrypt.hash(user.password, saltRounds);
-            const newUser = new User({ username: user.username, password: hashedPassword });
-            await newUser.save();
-            console.log(`User ${user.username} saved to database`);
+
+            // Хешируем пароль
+            const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+
+            // Создаём нового пользователя
+            await User.create({ username: userData.username, password: hashedPassword });
+
+            console.log(`Пользователь ${userData.username} успешно добавлен`);
         }
     } catch (error) {
-        console.error("Error hashing passwords or saving users:", error);
+        console.error("Ошибка при добавлении пользователей:", error);
     }
 })();
-
 
 app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
@@ -366,9 +478,24 @@ app.use((err, req, res, next) => {
     res.status(500).send({ success: false, message: "Something broke!" });
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
+
+
+
+
+server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
 export default app;
+
+
+
+
+
+
+
+
+
+
+
+
+

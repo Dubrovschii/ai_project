@@ -11,15 +11,17 @@ const user = ref("");
 const password = ref("");
 const visible = ref(false);
 const { notify } = useNotification();
-const loading = ref(false);
-
+console.log(apiStore.loading);
+let loading = apiStore.loading;
+console.log(1, loading);
 const logoUrl = logo;
 
 const login = async () => {
-  loading.value = true;
+  loading = true;
+  console.log(2, loading);
   if (!user.value || !password.value) {
     notify({ type: "error", text: "Enter your login and Enter your password" });
-    loading.value = false;
+    loading = false;
     return;
   }
 
@@ -35,7 +37,7 @@ const login = async () => {
         text: "Logged in successfully!",
         type: "success",
       });
-      loading.value = false;
+      loading = false;
 
       apiStore.setCookie("user_token", response.data.token, 365);
       apiStore.setCookie("user_name", user.value, 365);
@@ -50,7 +52,7 @@ const login = async () => {
         text: response.data.message || "Invalid credentials. Please try again.",
         type: "error",
       });
-      loading.value = false;
+      loading = false;
     }
   } catch (error) {
     // if{error}{
@@ -59,15 +61,15 @@ const login = async () => {
       text: error.response.data.message || "Server error occurred.",
       type: "error",
     });
-    loading.value = false;
+    loading = false;
     // }
   }
 };
-// const clickTest = async () => {
-//   user.value = "testuser";
-//   password.value = "password123";
-//   login();
-// };
+const clickTest = async () => {
+  user.value = "testuser";
+  password.value = "password123";
+  login();
+};
 const userName = apiStore.getCookie("user_name");
 
 const getAvatarUsers = async () => {
@@ -128,7 +130,7 @@ const getAvatarUsers = async () => {
                 >
                   Log In
                 </v-btn>
-                <!-- <div class="login__test">
+                <div class="login__test">
                   Do you want test app ?Click down
                   <v-btn
                     theme="dark"
@@ -137,7 +139,7 @@ const getAvatarUsers = async () => {
                     @click="clickTest"
                     >Click for test</v-btn
                   >
-                </div> -->
+                </div>
               </div>
             </v-window>
           </div>
